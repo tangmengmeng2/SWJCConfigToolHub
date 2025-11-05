@@ -110,6 +110,7 @@
     </EmbeddedResource>
     <None Include="DevCfg\站内室外监测Msg模板.ini" />
     <None Include="DevCfg\站内室外监测模板.ini" />
+    <None Include="DevCfg\站内室外监测码位表.ini" />
     <None Include="log4net.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

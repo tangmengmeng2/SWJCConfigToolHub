@@ -7,6 +7,6 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        
+        <Button Click="CreatFile" Height="50" Width="100" Content="创建文件"></Button>
     </Grid>
 </Window>

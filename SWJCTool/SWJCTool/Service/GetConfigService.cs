@@ -605,7 +605,6 @@ namespace SWJCTool.Service
         public bool ReadSWJCCode(string _filePath, ref List<SWJCCodeEntity> _SWJCCodeEnts)
         {
             bool isRight = false;
-
             string fileCfgPath = Path.Combine(filePath, _filePath);
             if (!File.Exists(fileCfgPath))
                 throw new FileNotFoundException($"INI文件不存在: {fileCfgPath}");

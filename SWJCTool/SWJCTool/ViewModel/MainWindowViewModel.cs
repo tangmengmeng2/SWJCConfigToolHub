@@ -20,7 +20,6 @@ namespace SWJCTool.ViewModel
 
         public MainWindowViewModel()
         {
-            CreateCodeFiles();
         }
 
 

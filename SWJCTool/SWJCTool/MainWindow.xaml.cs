@@ -1,4 +1,5 @@
 ﻿using MyUtility.Utility;
+using SWJCTool.Service;
 using SWJCTool.ViewModel;
 using System;
 using System.Collections.Generic;
@@ -27,6 +28,11 @@ namespace SWJCTool
         {
             InitializeComponent();
             this.DataContext = MainWindowVM;
+        }
+        private void CreatFile(object sender, RoutedEventArgs e)
+        {
+            CreateSWJCService service = new CreateSWJCService();
+            service.CreateSWJCConfig();
         }
     }
 }

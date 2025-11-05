@@ -79,16 +79,34 @@ namespace SWJCTool.Service
 
             #region 写入
 
+            //创建文件和文件夹
+            if (!CreateDirectory(out string swjcDirectoryPath))
+            {
+                Console.WriteLine("创建文件夹失败！");
+                return false;
+            }
+            //创建文件
+            string swjcPath = Path.Combine(swjcDirectoryPath, "SWJC.ini");
+            //File.Create(swjcPath);
+            
+            string MsgGatherPath = Path.Combine(swjcDirectoryPath, "MsgGather.ini");
+            //File.Create(MsgGatherPath);
+
+            Console.WriteLine("文件已创建：" + swjcPath + "," + MsgGatherPath);
+
+
+            string content = "模拟量项目\n子项数目=" + mySWJCTemplateModel.SWJCAnaloyCodeEnts.Count + Environment.NewLine;
+            File.WriteAllText(swjcPath, content, Encoding.UTF8);
             int count = 0;
             foreach (var item in mySWJCTemplateModel.SWJCAnaloyCodeEnts)
             {
-                string sectionName = "子项" + (count + 1).ToString();
                 StringBuilder info = new StringBuilder();
+                string sectionName = "子项" + (count + 1).ToString();
                 info.AppendLine($"名称=" + item.Name);
                 info.AppendLine($"模拟量子类型码=" + item.AnaloyCode);
                 info.AppendLine($"变化范围=0.05,0.01");
                 info.Append($";;序号 = 名称，标志列，AD号，显示序号，AD最小，AD最大，系数，报警上限，报警下限，分路上限，分机号，单位，预留(开关量)，预留，预留(倍率)，预留");
-                
+
                 if (!typeToCSMAnalogKeyValuePairs.TryGetValue(item.AnaloyCode, out List<FKCSMAnalogEnt> csmAnlogTemps))
                 {
                     csmAnlogTemps = new List<FKCSMAnalogEnt>();
@@ -107,7 +125,7 @@ namespace SWJCTool.Service
                 var analogSections = new List<IniSection<FKCSMAnalogEnt>>
                 {
                     new IniSection<FKCSMAnalogEnt>
-                    { 
+                    {
                         SectionName = sectionName,
                         DataList = csmAnlogTemps,
                         InfoLine = info.ToString(),
@@ -132,17 +150,34 @@ namespace SWJCTool.Service
                 };
                 count++;
                 // 分别写入不同的文件，或者合并到一个文件
-                GenericIniWriter<FKCSMAnalogEnt>.WriteSectionsToFile(analogSections, "output.ini");
+                GenericIniWriter<FKCSMAnalogEnt>.WriteSectionsToFile(analogSections, swjcPath);
 
             }
 
-
-
             #endregion
+
 
             #region 创建Msg排队
 
             
+            // 使用泛型版本
+            var devInfoSections = new List<IniSection<MsgGatherTemplateEntity>>
+                {
+                    new IniSection<MsgGatherTemplateEntity>
+                    {
+                        SectionName = "设备类型",
+                        DataList = mySWJCTemplateModel.MsgGatherTemplateEnts,
+                        InfoLine = $";;测试工具创建",
+                        Formatter = entity => $"{entity.Order}=\t{entity.Name},",
+                        UseParallelProcessing = true  // 启用并行处理
+                    }
+                };
+            // 分别写入不同的文件，或者合并到一个文件
+            GenericIniWriter<MsgGatherTemplateEntity>.WriteSectionsToFile(devInfoSections, MsgGatherPath);
+
+
+
+
             foreach (var item_MsgGatherTemplateEnt in mySWJCTemplateModel.MsgGatherTemplateEnts)
             {
                 Dictionary<string, int[]> devToADKeyValuePairs = new Dictionary<string, int[]>();
@@ -190,7 +225,7 @@ namespace SWJCTool.Service
                     order++;
                     msgDetailTemplates.Add(msgDetailTemplateTemp);
                 }
-                
+
 
 
                 #region 开始写入
@@ -221,7 +256,7 @@ namespace SWJCTool.Service
                     }
                 };
                 // 分别写入不同的文件，或者合并到一个文件
-                GenericIniWriter<MsgGatherTemplateUnit>.WriteSectionsToFile(attribSections, "outputtes.ini");
+                GenericIniWriter<MsgGatherTemplateUnit>.WriteSectionsToFile(attribSections, MsgGatherPath);
 
                 // 使用泛型版本
                 var detailSections = new List<IniSection<MsgDetailTemplate>>
@@ -237,16 +272,17 @@ namespace SWJCTool.Service
                     }
                 };
                 // 分别写入不同的文件，或者合并到一个文件
-                GenericIniWriter<MsgDetailTemplate>.WriteSectionsToFile(detailSections, "outputtes.ini");
+                GenericIniWriter<MsgDetailTemplate>.WriteSectionsToFile(detailSections, MsgGatherPath);
 
 
                 #endregion
 
-                int qq = 0;
+                //int qq = 0;
             }
 
 
             #endregion
+
 
 
             return isRight;
@@ -309,23 +345,28 @@ namespace SWJCTool.Service
         }
 
 
-        private bool WriteSWJC()
+        public bool CreateDirectory(out string swjcDirectoryPath)
         {
-            bool isRight = false;
+
+            bool isWrite = false;
+
+            swjcDirectoryPath = "";
 
             //创建文件夹 output/test-日期
+            string outputbasePath = System.AppDomain.CurrentDomain.BaseDirectory;
+            string output = Path.Combine(outputbasePath, "output");
+            Directory.CreateDirectory(output);
 
+            string timeStamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+            string test = Path.Combine(output, $"test_{timeStamp}");
+            Directory.CreateDirectory(test);
+            Console.WriteLine("文件夹已创建：" + test);
 
-            //创建文件
-
-
-            //写入
-
-
-
-            return isRight;
+            swjcDirectoryPath = test;
+            isWrite = true;
+            return isWrite;
         }
-
+             
 
     }
 }
